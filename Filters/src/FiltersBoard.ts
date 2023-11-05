@@ -3,6 +3,7 @@ import { BinarySection } from "./BinarySection";
 import { ControlElement } from "./ControlElement";
 import { DilatationFilter } from "./DilatationFilter";
 import { EdgesDetectFilter } from "./EdgesDetectFilter";
+import { ErosionFilter } from "./ErosionFilter";
 import { FilterButton } from "./FilterButton";
 import { ImageInput } from "./ImageInput";
 import { LoadingIndicator } from "./LoadingIndicator";
@@ -27,12 +28,14 @@ export class FiltersBoard {
   resetFilterButton;
   binaryImageButton;
   dilatationFilterButton;
+  erosionFilterButton;
 
   smoothFilter;
   medianFilter;
   edgeDetectFilter;
   binaryImageFilter;
   dilatationFilter;
+  erosionFilter;
 
   binarySection;
 
@@ -84,6 +87,11 @@ export class FiltersBoard {
       this.handleUseDilatationFilter
     );
 
+    this.erosionFilterButton = this.connectButton(
+      "erosionFilter",
+      this.handleUseErosionFilter
+    );
+
     this.binarySection = new BinarySection("binarySection");
 
     this.medianFilter = new MedianFilter(this.ctx!);
@@ -91,6 +99,7 @@ export class FiltersBoard {
     this.edgeDetectFilter = new EdgesDetectFilter(this.ctx!);
     this.binaryImageFilter = new BinaryFilter(this.ctx!, 100);
     this.dilatationFilter = new DilatationFilter(this.ctx!);
+    this.erosionFilter = new ErosionFilter(this.ctx!);
   }
 
   private handleUseSmoothFilter = async () => {
@@ -120,10 +129,19 @@ export class FiltersBoard {
   };
 
   private handleUseDilatationFilter = async () => {
-    //this.binarySection.hideSection();
     this.invokeFilterFunction(
       () =>
         this.dilatationFilter.applyDilation(
+          this.binaryImageFilter.getBinaryImageData()
+        ),
+      false
+    );
+  };
+
+  private handleUseErosionFilter = async () => {
+    this.invokeFilterFunction(
+      () =>
+        this.erosionFilter.applyErosion(
           this.binaryImageFilter.getBinaryImageData()
         ),
       false
@@ -172,6 +190,7 @@ export class FiltersBoard {
   private resetFilter = () => {
     if (this.originalImageData) {
       this.ctx!.putImageData(this.originalImageData!, 0, 0);
+      this.binaryImageFilter.binaryImageData = null;
       this.binarySection.hideSection();
     }
   };
