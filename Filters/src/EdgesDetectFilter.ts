@@ -61,7 +61,7 @@ export class EdgesDetectFilter {
         outputData[pixelIndex] = intensity;
         outputData[pixelIndex + 1] = intensity;
         outputData[pixelIndex + 2] = intensity;
-        outputData[pixelIndex + 3] = imageData[pixelIndex + 3]; // Przepisujemy składową alfa.
+        outputData[pixelIndex + 3] = imageData[pixelIndex + 3];
       }
       await new Promise((resolve) => setTimeout(resolve, 1));
     }

@@ -1,15 +1,20 @@
+import { BinaryFilter } from "./BinaryFilter";
+import { BinarySection } from "./BinarySection";
 import { ControlElement } from "./ControlElement";
+import { DilatationFilter } from "./DilatationFilter";
 import { EdgesDetectFilter } from "./EdgesDetectFilter";
 import { FilterButton } from "./FilterButton";
 import { ImageInput } from "./ImageInput";
 import { LoadingIndicator } from "./LoadingIndicator";
 import { MedianFilter } from "./MedianFilter";
+import { NumberInput } from "./NumberInput";
 import { SmoothFilter } from "./SmoothFilter";
 
 export class FiltersBoard {
   canvasWidth = 200;
   canvasHeight = 200;
   imageInput;
+  structuralElementSizeInput;
   canvas;
   ctx;
   originalImage: File | null = null;
@@ -20,10 +25,16 @@ export class FiltersBoard {
   medianFilterButton;
   edgeDetectFilterButton;
   resetFilterButton;
+  binaryImageButton;
+  dilatationFilterButton;
 
   smoothFilter;
   medianFilter;
   edgeDetectFilter;
+  binaryImageFilter;
+  dilatationFilter;
+
+  binarySection;
 
   controlElements: ControlElement[] = [];
 
@@ -33,6 +44,10 @@ export class FiltersBoard {
     canvas.height = this.canvasHeight;
     this.ctx = canvas.getContext("2d");
     this.imageInput = new ImageInput("image_input", this.loadImage);
+    this.structuralElementSizeInput = new NumberInput(
+      "structuralElementInput",
+      this.handleSetStructuralElementSize
+    );
 
     this.loadingIndicator = new LoadingIndicator("loadingIndicator");
 
@@ -60,21 +75,65 @@ export class FiltersBoard {
       this.handleUseEdgeDetectFilter
     );
 
+    this.binaryImageButton = this.connectButton(
+      "binaryImage",
+      this.handleUseBinaryFilter
+    );
+    this.dilatationFilterButton = this.connectButton(
+      "dilatationFilter",
+      this.handleUseDilatationFilter
+    );
+
+    this.binarySection = new BinarySection("binarySection");
+
     this.medianFilter = new MedianFilter(this.ctx!);
     this.smoothFilter = new SmoothFilter(this.ctx!);
     this.edgeDetectFilter = new EdgesDetectFilter(this.ctx!);
+    this.binaryImageFilter = new BinaryFilter(this.ctx!, 100);
+    this.dilatationFilter = new DilatationFilter(this.ctx!);
   }
 
   private handleUseSmoothFilter = async () => {
-    this.invokeFilterFunction(this.smoothFilter.applySmoothingFilter);
+    this.binarySection.hideSection();
+    this.invokeFilterFunction(this.smoothFilter.applySmoothingFilter, true);
   };
 
   private handleUseMedianFilter = async () => {
-    this.invokeFilterFunction(this.medianFilter.applyMedianFilter);
+    this.binarySection.hideSection();
+    this.invokeFilterFunction(this.medianFilter.applyMedianFilter, true);
   };
 
   private handleUseEdgeDetectFilter = async () => {
-    this.invokeFilterFunction(this.edgeDetectFilter.applySobelEdgeDetection);
+    this.binarySection.hideSection();
+    this.invokeFilterFunction(
+      this.edgeDetectFilter.applySobelEdgeDetection,
+      true
+    );
+  };
+
+  private handleUseBinaryFilter = async () => {
+    this.invokeFilterFunction(
+      this.binaryImageFilter.convertToBinaryImage,
+      true,
+      this.binarySection.showSection
+    );
+  };
+
+  private handleUseDilatationFilter = async () => {
+    //this.binarySection.hideSection();
+    this.invokeFilterFunction(
+      () =>
+        this.dilatationFilter.applyDilation(
+          this.binaryImageFilter.getBinaryImageData()
+        ),
+      false
+    );
+  };
+
+  private handleSetStructuralElementSize = (size: number) => {
+    if (this.dilatationFilter) {
+      this.dilatationFilter.radius = size;
+    }
   };
 
   private loadImage = (file: File) => {
@@ -113,6 +172,7 @@ export class FiltersBoard {
   private resetFilter = () => {
     if (this.originalImageData) {
       this.ctx!.putImageData(this.originalImageData!, 0, 0);
+      this.binarySection.hideSection();
     }
   };
 
@@ -141,15 +201,24 @@ export class FiltersBoard {
   }
 
   private invokeFilterFunction = (
-    filterFunction: (imageData: ImageData | null) => Promise<void>
+    filterFunction: (imageData: ImageData | null) => Promise<void>,
+    resetFilter: boolean,
+    successHelper?: () => void
   ) => {
-    this.resetFilter();
+    if (resetFilter) {
+      this.resetFilter();
+    }
     this.disableAll();
     this.onIndicator();
 
     filterFunction(this.originalImageData)
       .catch((e) => {
         console.log(e);
+      })
+      .then(() => {
+        if (successHelper) {
+          successHelper();
+        }
       })
       .finally(() => {
         this.enableAll();

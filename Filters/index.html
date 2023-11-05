@@ -36,6 +36,28 @@
         <button class="filter_button" id="edgesDetectFilter" type="button">
           Wykrywanie krawędzi
         </button>
+        <button class="filter_button" id="binaryImage" type="button">
+          Obraz binarny
+        </button>
+        <section class="binary_section hide" id="binarySection">
+          <form id="structureElementForm" class="image_form">
+            <label class="input_label" for="structureElementInput">
+              Promień elementu strukturyzacyjnego
+              <input
+                type="number"
+                min="1"
+                value="1"
+                step="1"
+                class="number_input"
+                id="structuralElementInput"
+              />
+            </label>
+          </form>
+          <button class="filter_button" id="dilatationFilter" type="button">
+            Dylatacja
+          </button>
+        </section>
+
         <h2 id="loadingIndicator" class="loading_indicator indicatorOff">
           Przetwarzam obraz
         </h2>

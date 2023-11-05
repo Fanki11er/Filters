@@ -53,6 +53,7 @@ body{
   display: flex;
   width: 100%;
   justify-content: center;
+
 }
 
 .image_input_label{
@@ -116,3 +117,38 @@ body{
   opacity: 0;
 }
 
+.number_input{
+  display: flex;
+  width: 70px;
+  border: 2px solid #80B03A;
+  border-radius: 10px;
+  padding: 5px;
+  transition: all 0.5s;
+  background-color:hsl(221, 95%, 8%);
+  color: #80B03A;
+}
+
+.number_input:hover, .number_input:focus{
+  border: 2px solid orange
+}
+
+.input_label{
+  display: flex;
+  flex-direction: column;
+  row-gap: 5px;
+  color: #80B03A;
+  align-items: center;
+
+}
+
+
+.binary_section{
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  row-gap: 10px;
+}
+
+.hide{
+  display: none;
+}
