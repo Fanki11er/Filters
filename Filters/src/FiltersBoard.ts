@@ -1,4 +1,5 @@
 import { ControlElement } from "./ControlElement";
+import { EdgesDetectFilter } from "./EdgesDetectFilter";
 import { FilterButton } from "./FilterButton";
 import { ImageInput } from "./ImageInput";
 import { LoadingIndicator } from "./LoadingIndicator";
@@ -17,10 +18,12 @@ export class FiltersBoard {
 
   smoothingFilterButton;
   medianFilterButton;
+  edgeDetectFilterButton;
   resetFilterButton;
 
   smoothFilter;
   medianFilter;
+  edgeDetectFilter;
 
   controlElements: ControlElement[] = [];
 
@@ -60,8 +63,17 @@ export class FiltersBoard {
       this.controlElements.push(this.medianFilterButton);
     }
 
+    this.edgeDetectFilterButton = new FilterButton(
+      "edgesDetectFilter",
+      this.handleUseEdgeDetectFilter
+    );
+    if (this.medianFilterButton) {
+      this.controlElements.push(this.medianFilterButton);
+    }
+
     this.medianFilter = new MedianFilter(this.ctx!);
     this.smoothFilter = new SmoothFilter(this.ctx!);
+    this.edgeDetectFilter = new EdgesDetectFilter(this.ctx!);
   }
 
   handleUseMedianFilter = async () => {
@@ -85,6 +97,21 @@ export class FiltersBoard {
 
     this.smoothFilter
       .applySmoothingFilter(this.originalImageData)
+      .catch((e) => {
+        console.log(e);
+      })
+      .finally(() => {
+        this.enableAll();
+        this.offIndicator();
+      });
+  };
+
+  handleUseEdgeDetectFilter = async () => {
+    this.disableAll();
+    this.onIndicator();
+
+    this.edgeDetectFilter
+      .applySobelEdgeDetectionAsync(this.originalImageData)
       .catch((e) => {
         console.log(e);
       })
