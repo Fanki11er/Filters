@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/src/style.css" />
+    <title>Filter</title>
+  </head>
+  <body>
+    <div class="main_container">
+      <div class="canvas_wrapper">
+        <canvas id="canvas" class="canvas"></canvas>
+      </div>
+      <div class="controls">
+        <form id="image_form" class="image_form">
+          <label class="image_input_label" for="image_input">
+            Wybierz zdjęcie
+            <input
+              type="file"
+              accept="jpeg/png"
+              class="image_input"
+              id="image_input"
+            />
+          </label>
+        </form>
+        <button class="filter_button" id="resetFilter" type="button">
+          Resetuj
+        </button>
+        <button class="filter_button" id="smoothing" type="button">
+          Filtr wygładzający
+        </button>
+        <button class="filter_button" id="medianFilter" type="button">
+          Filtr medianowy
+        </button>
+        <h2 id="loadingIndicator" class="loading_indicator indicatorOff">
+          Przetwarzam obraz
+        </h2>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
