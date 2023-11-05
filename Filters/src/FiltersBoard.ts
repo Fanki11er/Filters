@@ -40,88 +40,44 @@ export class FiltersBoard {
       this.controlElements.push(this.imageInput);
     }
 
-    this.smoothingFilterButton = new FilterButton(
+    this.resetFilterButton = this.connectButton(
+      "resetFilter",
+      this.resetFilter
+    );
+
+    this.smoothingFilterButton = this.connectButton(
       "smoothing",
       this.handleUseSmoothFilter
     );
 
-    if (this.smoothingFilterButton) {
-      this.controlElements.push(this.smoothingFilterButton);
-    }
-
-    this.resetFilterButton = new FilterButton("resetFilter", this.resetFilter);
-
-    if (this.resetFilterButton) {
-      this.controlElements.push(this.resetFilterButton);
-    }
-
-    this.medianFilterButton = new FilterButton(
+    this.medianFilterButton = this.connectButton(
       "medianFilter",
       this.handleUseMedianFilter
     );
-    if (this.medianFilterButton) {
-      this.controlElements.push(this.medianFilterButton);
-    }
 
-    this.edgeDetectFilterButton = new FilterButton(
+    this.edgeDetectFilterButton = this.connectButton(
       "edgesDetectFilter",
       this.handleUseEdgeDetectFilter
     );
-    if (this.medianFilterButton) {
-      this.controlElements.push(this.medianFilterButton);
-    }
 
     this.medianFilter = new MedianFilter(this.ctx!);
     this.smoothFilter = new SmoothFilter(this.ctx!);
     this.edgeDetectFilter = new EdgesDetectFilter(this.ctx!);
   }
 
-  handleUseMedianFilter = async () => {
-    this.disableAll();
-    this.onIndicator();
-
-    this.medianFilter
-      .applyMedianFilter(this.originalImageData)
-      .catch((e) => {
-        console.log(e);
-      })
-      .finally(() => {
-        this.enableAll();
-        this.offIndicator();
-      });
+  private handleUseSmoothFilter = async () => {
+    this.invokeFilterFunction(this.smoothFilter.applySmoothingFilter);
   };
 
-  handleUseSmoothFilter = async () => {
-    this.disableAll();
-    this.onIndicator();
-
-    this.smoothFilter
-      .applySmoothingFilter(this.originalImageData)
-      .catch((e) => {
-        console.log(e);
-      })
-      .finally(() => {
-        this.enableAll();
-        this.offIndicator();
-      });
+  private handleUseMedianFilter = async () => {
+    this.invokeFilterFunction(this.medianFilter.applyMedianFilter);
   };
 
-  handleUseEdgeDetectFilter = async () => {
-    this.disableAll();
-    this.onIndicator();
-
-    this.edgeDetectFilter
-      .applySobelEdgeDetectionAsync(this.originalImageData)
-      .catch((e) => {
-        console.log(e);
-      })
-      .finally(() => {
-        this.enableAll();
-        this.offIndicator();
-      });
+  private handleUseEdgeDetectFilter = async () => {
+    this.invokeFilterFunction(this.edgeDetectFilter.applySobelEdgeDetection);
   };
 
-  loadImage = (file: File) => {
+  private loadImage = (file: File) => {
     this.originalImage = file;
 
     const reader = new FileReader();
@@ -154,7 +110,7 @@ export class FiltersBoard {
     reader.readAsDataURL(file);
   };
 
-  resetFilter = () => {
+  private resetFilter = () => {
     if (this.originalImageData) {
       this.ctx!.putImageData(this.originalImageData!, 0, 0);
     }
@@ -181,6 +137,32 @@ export class FiltersBoard {
   private offIndicator() {
     if (this.loadingIndicator) {
       this.loadingIndicator.setOff();
+    }
+  }
+
+  private invokeFilterFunction = (
+    filterFunction: (imageData: ImageData | null) => Promise<void>
+  ) => {
+    this.resetFilter();
+    this.disableAll();
+    this.onIndicator();
+
+    filterFunction(this.originalImageData)
+      .catch((e) => {
+        console.log(e);
+      })
+      .finally(() => {
+        this.enableAll();
+        this.offIndicator();
+      });
+  };
+
+  private connectButton(buttonId: string, handleFunction: () => void) {
+    const button = new FilterButton(buttonId, handleFunction);
+
+    if (button) {
+      this.controlElements.push(button);
+      return button;
     }
   }
 }

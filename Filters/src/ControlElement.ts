@@ -3,6 +3,7 @@ export abstract class ControlElement {
   setActive = () => {
     if (this.control) {
       this.control.classList.remove("disabled");
+      this.control.removeAttribute("disabled");
     }
   };
   disable = () => {

@@ -6,7 +6,7 @@ export class MedianFilter {
     this.ctx = ctx;
   }
 
-  async applyMedianFilter(originalImageData: ImageData | null) {
+  applyMedianFilter = async (originalImageData: ImageData | null) => {
     if (!originalImageData) {
       return;
     }
@@ -56,5 +56,5 @@ export class MedianFilter {
     const imageDataWithFilter = new ImageData(outputData, width, height);
 
     this.ctx?.putImageData(imageDataWithFilter, 0, 0);
-  }
+  };
 }

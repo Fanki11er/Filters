@@ -5,7 +5,7 @@ export class EdgesDetectFilter {
     this.ctx = ctx;
   }
 
-  async applySobelEdgeDetectionAsync(originalImageData: ImageData | null) {
+  applySobelEdgeDetection = async (originalImageData: ImageData | null) => {
     if (!originalImageData) {
       return;
     }
@@ -69,5 +69,5 @@ export class EdgesDetectFilter {
     const imageDataWithFilter = new ImageData(outputData, width, height);
 
     this.ctx?.putImageData(imageDataWithFilter, 0, 0);
-  }
+  };
 }

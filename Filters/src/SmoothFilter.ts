@@ -6,7 +6,7 @@ export class SmoothFilter {
     this.ctx = ctx;
   }
 
-  async applySmoothingFilter(originalImageData: ImageData | null) {
+  applySmoothingFilter = async (originalImageData: ImageData | null) => {
     if (!originalImageData) {
       return;
     }
@@ -52,5 +52,5 @@ export class SmoothFilter {
     const imageDataWithFilter = new ImageData(outputData, width, height);
 
     this.ctx?.putImageData(imageDataWithFilter, 0, 0);
-  }
+  };
 }
